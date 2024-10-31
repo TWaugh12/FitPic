@@ -3,4 +3,5 @@
     <string name="profile_nav">Profile</string>
     <string name="closet_nav">Closet</string>
     <string name="add_nav">Add</string>
+    <string name="shirt_label">Shirt</string>
 </resources>
