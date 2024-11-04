@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <item
-        android:id="@+id/navigation_home"
-        android:title="@string/profile_nav" />
-
+        android:id="@+id/navigation_profile"
+        android:title="Profile" />
     <item
-        android:id="@+id/navigation_dashboard"
-        android:title="@string/closet_nav" />
-
+        android:id="@+id/navigation_closet"
+        android:title="Closet" />
     <item
-        android:id="@+id/navigation_notifications"
-        android:title="@string/add_nav" />
-
+        android:id="@+id/navigation_add"
+        android:title="Add" />
 </menu>
