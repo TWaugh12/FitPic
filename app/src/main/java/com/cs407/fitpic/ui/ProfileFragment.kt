@@ -52,9 +52,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         // Apply color to TextViews
         val titleTextView: TextView = view.findViewById(R.id.fitpic_title)
         val weatherTextView: TextView = view.findViewById(R.id.text_todays_weather)
-
         titleTextView.setTextColor(primaryTextColor)
         weatherTextView.setTextColor(primaryTextColor)
+
 
         // Handle Delete Account button
         deleteAccountButton.setOnClickListener {
