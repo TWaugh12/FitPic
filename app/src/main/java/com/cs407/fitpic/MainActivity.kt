@@ -21,7 +21,6 @@ class MainActivity : AppCompatActivity() {
         val navView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        // This will make the action bar show the current section name (Profile, Closet, or Add)
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_profile,

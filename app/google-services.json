@@ -1,0 +1,41 @@
+{
+  "project_info": {
+    "project_number": "344011974697",
+    "project_id": "tags-df88d",
+    "storage_bucket": "tags-df88d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:344011974697:android:22d37beef9776245485438",
+        "android_client_info": {
+          "package_name": "com.cs407.fitpic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0JvpLyZ5_XawQIorywqa2ZkVe5nukZ2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "344011974697-hk35umk2oqtm9ae31s3bp2tniq4u89dv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "344011974697-caukrh71gk6q7kab74fp2qb35i6gp31t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ai.dripdemo.dripapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
