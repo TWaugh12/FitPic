@@ -1,6 +1,7 @@
 package com.cs407.fitpic.ui
 
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -8,6 +9,7 @@ import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.cs407.fitpic.R
 
@@ -40,6 +42,20 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             applyDarkMode(isChecked)
         }
 
+        val isDarkTheme = isDarkTheme()
+        val primaryTextColor = if (isDarkTheme) {
+            ContextCompat.getColor(requireContext(), R.color.text_color_dark)
+        } else {
+            ContextCompat.getColor(requireContext(), R.color.text_color_light)
+        }
+
+        // Apply color to TextViews
+        val titleTextView: TextView = view.findViewById(R.id.fitpic_title)
+        val weatherTextView: TextView = view.findViewById(R.id.text_todays_weather)
+
+        titleTextView.setTextColor(primaryTextColor)
+        weatherTextView.setTextColor(primaryTextColor)
+
         // Handle Delete Account button
         deleteAccountButton.setOnClickListener {
             Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
@@ -57,5 +73,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         } else {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
+    }
+
+    private fun isDarkTheme(): Boolean {
+        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 }

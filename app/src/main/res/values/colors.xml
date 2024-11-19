@@ -15,4 +15,6 @@
     <color name="primary_variant_dark">#121212</color>
     <color name="on_primary_dark">#FFFFFF</color>
     <color name="gray">#A9A9A9</color>
+    <color name="text_color_light">#000000</color> <!-- Black for light mode -->
+    <color name="text_color_dark">#FFFFFF</color> <!-- White for dark mode -->
 </resources>
