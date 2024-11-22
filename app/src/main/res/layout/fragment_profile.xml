@@ -24,12 +24,13 @@
         android:id="@+id/text_todays_weather"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Today's Weather"
+        android:text="Today's Weather:"
         android:textSize="18sp"
         app:layout_constraintTop_toBottomOf="@id/fitpic_title"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="100dp"/>
 
     <!-- Title: Bookmarked -->
     <TextView
@@ -39,9 +40,29 @@
         android:text="bookmarked"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/text_todays_weather"
+        app:layout_constraintTop_toBottomOf="@id/weather_text"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
+
+    <!-- Weather reading -->
+    <TextView
+        android:id="@+id/weather_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="24sp"
+        app:layout_constraintTop_toBottomOf="@id/text_todays_weather"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/weather_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:text="GET"
+        app:layout_constraintLeft_toRightOf="@id/text_todays_weather"
+        app:layout_constraintTop_toTopOf="@id/text_todays_weather" />
 
     <!-- Bookmarked Grid -->
     <androidx.recyclerview.widget.RecyclerView

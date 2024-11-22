@@ -62,6 +62,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-storage")
 
+    // Location dependencies
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.android.volley:volley:1.2.1")
 
     //glide dependencies to show images
     implementation("com.github.bumptech.glide:glide:4.11.0")
