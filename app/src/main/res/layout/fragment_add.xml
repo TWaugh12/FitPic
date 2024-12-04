@@ -15,6 +15,7 @@
         android:text="fitpic"
         android:textSize="48sp"
         android:textStyle="bold"
+        android:textColor="@color/black"
         android:layout_marginTop="16dp" />
 
     <!-- ImageView to display the selected clothing image -->

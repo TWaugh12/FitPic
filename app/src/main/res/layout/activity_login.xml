@@ -49,6 +49,6 @@
         android:layout_height="wrap_content"
         android:text="no account? sign up"
         android:textAlignment="center"
-        android:textColor="@color/black"
+        android:textColor="@color/teal_700"
         android:paddingTop="16dp" />
 </LinearLayout>

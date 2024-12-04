@@ -1,5 +1,6 @@
 package com.cs407.fitpic.ui
 
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,9 +9,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.cs407.fitpic.R
 import com.google.firebase.auth.FirebaseAuth
@@ -50,6 +53,16 @@ class AddFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val isDarkTheme = isDarkTheme()
+        val primaryTextColor = if (isDarkTheme) {
+            ContextCompat.getColor(requireContext(), R.color.text_color_dark)
+        } else {
+            ContextCompat.getColor(requireContext(), R.color.text_color_light)
+        }
+
+        // Apply color to TextViews
+        val titleTextView: TextView = view.findViewById(R.id.fitpic_title)
+        titleTextView.setTextColor(primaryTextColor)
         initializeViews(view)
         setupClickListeners()
     }
@@ -142,5 +155,9 @@ class AddFragment : Fragment() {
         context?.let {
             Toast.makeText(it, message, Toast.LENGTH_SHORT).show()
         }
+    }
+    private fun isDarkTheme(): Boolean {
+        val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
     }
 }
