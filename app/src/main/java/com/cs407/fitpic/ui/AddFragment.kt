@@ -13,9 +13,9 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import com.cs407.fitpic.R
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
-import com.google.firebase.storage.storage
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 
 class AddFragment : Fragment() {
@@ -25,8 +25,9 @@ class AddFragment : Fragment() {
     private lateinit var clothingTypeSpinner: Spinner
     private var selectedImageUri: Uri? = null
 
-    private val storage = Firebase.storage
-    private val firestore = Firebase.firestore
+    private val storage = FirebaseStorage.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
     private val pickImage = registerForActivityResult(
         ActivityResultContracts.PickVisualMedia()
@@ -96,14 +97,24 @@ class AddFragment : Fragment() {
     }
 
     private fun saveToFirestore(filename: String, downloadUrl: String) {
+        val currentUser = auth.currentUser
+
+        if (currentUser == null) {
+            showToast("User not logged in. Please log in to save items.")
+            return
+        }
+
         val clothingItem = hashMapOf(
             "type" to clothingTypeSpinner.selectedItem.toString(),
             "imageUrl" to downloadUrl,
             "timestamp" to System.currentTimeMillis(),
-            "filename" to filename
+            "filename" to filename,
+            "userId" to currentUser.uid // Associate with the current user
         )
 
-        firestore.collection("products")
+        firestore.collection("users")
+            .document(currentUser.uid)
+            .collection("clothingItems") // Subcollection for user's clothing items
             .add(clothingItem)
             .addOnSuccessListener {
                 showToast("Upload successful!")
