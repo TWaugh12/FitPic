@@ -2,6 +2,7 @@ package com.cs407.fitpic.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -25,12 +26,17 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.android.volley.Request
 import org.json.JSONObject
+import com.cs407.fitpic.ui.LoginActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     // weather url to get JSON
     var weather_url1 = ""
 
+    private lateinit var auth: FirebaseAuth
+    private val db = FirebaseFirestore.getInstance()
     // api id for url
     var api_key = "a30081f64c8fb1b31af9262d1dbf69d5"
 
@@ -91,14 +97,39 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             checkForPermission()
         }
 
+        auth = FirebaseAuth.getInstance()
         // Handle Delete Account button
-        deleteAccountButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Account deleted", Toast.LENGTH_SHORT).show()
+        logOutButton.setOnClickListener {
+            auth.signOut()
+            Toast.makeText(requireContext(), "Logged Out", Toast.LENGTH_SHORT).show()
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
 
-        // Handle Log Out button
-        logOutButton.setOnClickListener {
-            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
+        deleteAccountButton.setOnClickListener {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                db.collection("users").document(currentUser.uid)
+                    .delete()
+                    .addOnSuccessListener {
+                        currentUser.delete()
+                            .addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Account Deleted", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(requireContext(), LoginActivity::class.java)
+                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                startActivity(intent)
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(requireContext(), "Failed to Delete Account", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Failed to Delete User Data", Toast.LENGTH_SHORT).show()
+                    }
+            } else {
+                Toast.makeText(requireContext(), "No User Found", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
