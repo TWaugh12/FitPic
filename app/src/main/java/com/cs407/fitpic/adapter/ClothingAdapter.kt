@@ -10,7 +10,6 @@ import com.cs407.fitpic.R
 
 // adapter to link items in database.
 
-//TODO: CHECK LOGIC OF ITEMS, MIGHT BE SHOWING MULTIPLE PICS OF SAME THINGS
 
 
 
@@ -29,7 +28,7 @@ class ClothingAdapter(private val items: List<ClothingItem>) :
 
     override fun onBindViewHolder(holder: ClothingViewHolder, position: Int) {
         val item = items[position]
-        val imageUrl = item.imageUrls.firstOrNull()
+        val imageUrl = item.imageUrl
 
 
         // placeholder is the icon displaying while loading

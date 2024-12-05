@@ -11,6 +11,7 @@ import com.cs407.fitpic.R
 import com.cs407.fitpic.adapter.ClothingItem
 import com.cs407.fitpic.adapter.Section
 import com.cs407.fitpic.adapter.SectionAdapter
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class ClosetFragment : Fragment() {
@@ -18,14 +19,19 @@ class ClosetFragment : Fragment() {
 
     // TODO: CHANGE CURRENT USER ID TO DYNAMICALLY ALLOCATED ONE
 
+    // sets the userID from currentUser
+    private var auth = FirebaseAuth.getInstance()
+    private val currentUserId = auth.currentUser?.uid
+
     private lateinit var recyclerView: RecyclerView
     private val sectionAdapter = SectionAdapter()
     private val firestore = FirebaseFirestore.getInstance()
-    private val currentUserId = "IuqWnM0nT0Qfpv2MZOtrekxoSJf1"
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
+
     ): View? {
         return inflater.inflate(R.layout.fragment_closet, container, false)
     }
@@ -57,7 +63,7 @@ class ClosetFragment : Fragment() {
         val sectionMap = mutableMapOf<String, MutableList<ClothingItem>>()
 
         for (item in clothingItems) {
-            val category = item.category ?: "Uncategorized"
+            val category = item.type ?: "Uncategorized"
             sectionMap.getOrPut(category) { mutableListOf() }.add(item)
         }
 

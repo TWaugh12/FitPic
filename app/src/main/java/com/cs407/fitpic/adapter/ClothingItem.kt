@@ -3,6 +3,6 @@ package com.cs407.fitpic.adapter
 // TODO: MAY NEED TO ADJUST THE CLASS TO CONTAIN MORE INFO
 
 data class ClothingItem(
-    val imageUrls: List<String> = emptyList(),
-    val category: String? = null // Add other fields if needed
+    val imageUrl: String? = null,
+    val type: String? = null // Add other fields if needed
 )
