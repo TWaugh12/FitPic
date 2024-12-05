@@ -35,7 +35,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     // weather url to get JSON
     var weather_url1 = ""
 
-    private lateinit var auth: FirebaseAuth
+    private var auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     // api id for url
     var api_key = "a30081f64c8fb1b31af9262d1dbf69d5"
@@ -51,10 +51,19 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
         // Initialize UI components
         val darkModeSwitch: Switch = view.findViewById(R.id.switch_dark_mode)
-        val phoneNumber: TextView = view.findViewById(R.id.text_phone_number)
-        val email: TextView = view.findViewById(R.id.text_email)
+        val usernameTextView: TextView = view.findViewById(R.id.text_username)
+        val emailTextView: TextView = view.findViewById(R.id.text_email)
         val deleteAccountButton: Button = view.findViewById(R.id.button_delete_account)
         val logOutButton: Button = view.findViewById(R.id.button_log_out)
+
+        // Fetch and set username
+        fetchUsername { fetchedUsername ->
+            usernameTextView.text = fetchedUsername
+        }
+
+        // Set email directly from FirebaseAuth
+        val email = auth.currentUser?.email
+        emailTextView.text = email ?: "email unavailable"
 
         // Toggle dark mode
         val sharedPreferences: SharedPreferences = requireContext().getSharedPreferences("settings", 0)
@@ -225,5 +234,23 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private fun isDarkTheme(): Boolean {
         val nightModeFlags = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         return nightModeFlags == Configuration.UI_MODE_NIGHT_YES
+    }
+
+    private fun fetchUsername(onResult: (String) -> Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    val username = document?.getString("username") ?: "username unavailable"
+                    onResult(username)
+                }
+                .addOnFailureListener {
+                    onResult("username unavailable")
+                }
+        } else {
+            onResult("username unavailable")
+        }
     }
 }
