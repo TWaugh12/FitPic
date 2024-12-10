@@ -12,7 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cs407.fitpic.R
 
 class SectionAdapter(
-    private val context: Context
+    private val context: Context,
+    private val onLongClick: (ClothingItem) -> Unit
 ) : RecyclerView.Adapter<SectionAdapter.SectionViewHolder>() {
 
     private val sections = mutableListOf<Section>()
@@ -56,7 +57,7 @@ class SectionAdapter(
             LinearLayoutManager.HORIZONTAL,
             false
         )
-        holder.recyclerView.adapter = ClothingAdapter(section.items)
+        holder.recyclerView.adapter = ClothingAdapter(section.items, onLongClick)
     }
 
     override fun getItemCount(): Int = sections.size

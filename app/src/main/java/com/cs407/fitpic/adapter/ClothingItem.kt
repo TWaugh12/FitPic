@@ -3,6 +3,7 @@ package com.cs407.fitpic.adapter
 // TODO: MAY NEED TO ADJUST THE CLASS TO CONTAIN MORE INFO
 
 data class ClothingItem(
+    val documentId: String = "",
     val filename: String = "",
     val type: String = "",
     val imageUrl: String = ""

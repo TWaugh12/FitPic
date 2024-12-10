@@ -15,6 +15,7 @@ import com.cs407.fitpic.R
 import com.cs407.fitpic.adapter.ClothingItem
 import com.cs407.fitpic.adapter.Section
 import com.cs407.fitpic.adapter.SectionAdapter
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
@@ -23,7 +24,11 @@ class ClosetFragment : Fragment() {
 
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
-    private val sectionAdapter by lazy { SectionAdapter(requireContext()) }
+    private val sectionAdapter by lazy {
+        SectionAdapter(requireContext()) { clothingItem ->
+            showDeleteDialog(clothingItem)
+        }
+    }
 
     private lateinit var recyclerView: RecyclerView
 
@@ -38,7 +43,7 @@ class ClosetFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         recyclerView = view.findViewById(R.id.recycler_closet)
-        recyclerView.layoutManager = LinearLayoutManager(context) // Vertical layout for sections
+        recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = sectionAdapter
 
         val isDarkMode = isDarkTheme()
@@ -71,7 +76,7 @@ class ClosetFragment : Fragment() {
 
     private fun handleClothingItemsSuccess(querySnapshot: QuerySnapshot) {
         val clothingItems = querySnapshot.documents.mapNotNull { document ->
-            document.toObject(ClothingItem::class.java) // Convert Firestore document to ClothingItem
+            document.toObject(ClothingItem::class.java)?.copy(documentId = document.id)
         }
 
         val sections = organizeClothingByCategory(clothingItems)
@@ -83,12 +88,40 @@ class ClosetFragment : Fragment() {
             .map { (category, items) -> Section(category, items) }
     }
 
-    private fun applyDarkMode(isDarkMode: Boolean) {
-        if (isDarkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+    private fun showDeleteDialog(clothingItem: ClothingItem) {
+        val bottomSheetDialog = BottomSheetDialog(requireContext())
+        val sheetView = layoutInflater.inflate(R.layout.bottom_sheet_dialog, null)
+        bottomSheetDialog.setContentView(sheetView)
+
+        sheetView.findViewById<View>(R.id.delete_button)?.setOnClickListener {
+            deleteClothingItem(clothingItem)
+            bottomSheetDialog.dismiss()
         }
+
+        sheetView.findViewById<View>(R.id.cancel_button)?.setOnClickListener {
+            bottomSheetDialog.dismiss()
+        }
+
+        bottomSheetDialog.show()
+    }
+
+    private fun deleteClothingItem(clothingItem: ClothingItem) {
+        val currentUser = auth.currentUser ?: return
+
+        val clothingItemRef = firestore.collection("users")
+            .document(currentUser.uid)
+            .collection("clothingItems")
+            .document(clothingItem.documentId)
+
+        clothingItemRef.delete()
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Item deleted", Toast.LENGTH_SHORT).show()
+                fetchClothingItems() // Refresh the data after deletion
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ClosetFragment", "Failed to delete item", exception)
+                Toast.makeText(requireContext(), "Failed to delete item", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun isDarkTheme(): Boolean {

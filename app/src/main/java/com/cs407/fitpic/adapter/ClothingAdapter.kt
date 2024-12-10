@@ -13,8 +13,9 @@ import com.cs407.fitpic.R
 
 
 
-class ClothingAdapter(private val items: List<ClothingItem>) :
-    RecyclerView.Adapter<ClothingAdapter.ClothingViewHolder>() {
+class ClothingAdapter(private val items: List<ClothingItem>,
+                      private val onLongClick: (ClothingItem) -> Unit
+    ) : RecyclerView.Adapter<ClothingAdapter.ClothingViewHolder>() {
 
     class ClothingViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.image_clothing_item)
@@ -30,7 +31,10 @@ class ClothingAdapter(private val items: List<ClothingItem>) :
         val item = items[position]
         val imageUrl = item.imageUrl
 
-
+        holder.itemView.setOnLongClickListener {
+            onLongClick(item)
+            true
+        }
         // placeholder is the icon displaying while loading
         //TODO: FIND BETTER LOADING ICON
         Glide.with(holder.itemView.context)
