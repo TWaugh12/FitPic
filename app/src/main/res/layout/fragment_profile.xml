@@ -57,7 +57,7 @@
         android:id="@+id/title_bookmarked"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="bookmarked"
+        android:text="fits"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/weather_text"

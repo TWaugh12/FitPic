@@ -13,5 +13,4 @@
         android:textSize="16sp"
         android:textColor="@android:color/black"
         android:gravity="center"/>
-
 </androidx.cardview.widget.CardView>

@@ -53,8 +53,10 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        fitsList = mutableListOf()
+        clothingItemsMap = mutableMapOf()
 
+        super.onViewCreated(view, savedInstanceState)
         val darkModeSwitch: Switch = view.findViewById(R.id.switch_dark_mode)
         val usernameTextView: TextView = view.findViewById(R.id.text_username)
         val emailTextView: TextView = view.findViewById(R.id.text_email)
@@ -99,16 +101,16 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
 
         // Initialize RecyclerView with the FitsAdapter
-        fitsList = mutableListOf() // Initialize with an empty list
-        fitsAdapter = FitAdapter(fitsList, requireContext()) // Pass only the list and context
+        fitsRecyclerView = view.findViewById(R.id.recycler_bookmarked)
         fitsRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        fitsAdapter = FitAdapter(fitsList, requireContext())
         fitsRecyclerView.adapter = fitsAdapter
 
-// Fetch user fits from Firebase
+        // Fetch and display fits
         fetchUserFits { userFits ->
             fitsList.clear()
             fitsList.addAll(userFits)
-            fitsAdapter.notifyDataSetChanged() // Notify the adapter when data is updated
+            fitsAdapter.notifyDataSetChanged()
         }
 
         auth = FirebaseAuth.getInstance()
@@ -155,21 +157,18 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .addOnSuccessListener { result ->
                     val userFits = mutableListOf<Fit>()
                     for (document in result) {
-                        val title = document.getString("title") ?: ""
+                        val title = document.getString("title") ?: continue
                         val clothingItemIds = document.get("clothing_item_ids") as? List<String> ?: emptyList()
-
-                        // Only add the fit if the title is not empty
-                        if (title.isNotEmpty()) {
-                            val fit = Fit(title, clothingItemIds)
-                            userFits.add(fit)
-                        }
+                        userFits.add(Fit(title, clothingItemIds))
                     }
                     onResult(userFits)
                 }
-                .addOnFailureListener {
+                .addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Failed to fetch fits: ${exception.message}", Toast.LENGTH_SHORT).show()
                     onResult(emptyList())
                 }
         } else {
+            Toast.makeText(requireContext(), "No user logged in", Toast.LENGTH_SHORT).show()
             onResult(emptyList())
         }
     }
