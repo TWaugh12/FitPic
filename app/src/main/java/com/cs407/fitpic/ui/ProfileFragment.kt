@@ -34,9 +34,11 @@ import org.json.JSONObject
 import com.cs407.fitpic.ui.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
+    private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     var weather_url1 = ""
     private var auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
@@ -53,6 +55,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        auth = FirebaseAuth.getInstance()
         fitsList = mutableListOf()
         clothingItemsMap = mutableMapOf()
 
@@ -106,14 +109,13 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         fitsAdapter = FitAdapter(fitsList, requireContext())
         fitsRecyclerView.adapter = fitsAdapter
 
+        fetchUserFits()
         // Fetch and display fits
-        fetchUserFits { userFits ->
+       /* fetchUserFits { userFits ->
             fitsList.clear()
             fitsList.addAll(userFits)
             fitsAdapter.notifyDataSetChanged()
-        }
-
-        auth = FirebaseAuth.getInstance()
+        } **/
         logOutButton.setOnClickListener {
             auth.signOut()
             Toast.makeText(requireContext(), "Logged Out", Toast.LENGTH_SHORT).show()
@@ -148,29 +150,48 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-    private fun fetchUserFits(onResult: (List<Fit>) -> Unit) {
+    private fun fetchUserFits() {
         val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val userId = currentUser.uid
-            db.collection("fits").document(userId).collection("fits")
-                .get()
-                .addOnSuccessListener { result ->
-                    val userFits = mutableListOf<Fit>()
-                    for (document in result) {
-                        val title = document.getString("title") ?: continue
-                        val clothingItemIds = document.get("clothing_item_ids") as? List<String> ?: emptyList()
-                        userFits.add(Fit(title, clothingItemIds))
-                    }
-                    onResult(userFits)
-                }
-                .addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Failed to fetch fits: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    onResult(emptyList())
-                }
-        } else {
-            Toast.makeText(requireContext(), "No user logged in", Toast.LENGTH_SHORT).show()
-            onResult(emptyList())
+        if (currentUser == null) {
+            Log.e("ProfileFragment", "No user logged in")
+            if (isAdded) {
+                Toast.makeText(requireContext(), "User not logged in.", Toast.LENGTH_SHORT).show()
+            }
+            return
         }
+
+        val fitsRef = firestore.collection("users")
+            .document(currentUser.uid)
+            .collection("fits")
+
+        fitsRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                if (isAdded) {
+                    handleFitsSuccess(querySnapshot)
+                } else {
+                    Log.e("ProfileFragment", "Fragment not attached when data was fetched.")
+                }
+            }
+            .addOnFailureListener { exception ->
+                if (isAdded) {
+                    Log.e("ProfileFragment", "Error fetching fits", exception)
+                    Toast.makeText(requireContext(), "Failed to load fits. Please try again.", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
+
+    private fun handleFitsSuccess(querySnapshot: QuerySnapshot) {
+        if (!isAdded || view == null) {
+            Log.e("ProfileFragment", "Fragment is no longer attached; skipping UI update.")
+            return
+        }
+
+        val fits = querySnapshot.documents.mapNotNull { document ->
+            document.toObject(Fit::class.java)?.copy(title = document.getString("title") ?: "")
+        }
+
+        fitsAdapter = FitAdapter(fits, requireContext())
+        fitsRecyclerView.adapter = fitsAdapter
     }
 
     private fun fetchClothingItems(onResult: (Map<String, ClothingItem>) -> Unit) {
