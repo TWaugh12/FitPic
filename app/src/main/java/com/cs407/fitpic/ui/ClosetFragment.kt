@@ -119,7 +119,7 @@ class ClosetFragment : Fragment() {
                 val groupedItems = clothingItems.groupBy { it.type }
 
                 // Ensure at least one shirt and one pant
-                val shirt = groupedItems["Shirt"]?.randomOrNull()
+                val shirt = groupedItems["Shirts"]?.randomOrNull()
                 val pant = groupedItems["Pants"]?.randomOrNull()
 
                 if (shirt == null || pant == null) {
