@@ -32,18 +32,6 @@
         android:layout_marginTop="8dp"
         android:layout_marginRight="100dp"/>
 
-    <!-- Title: Bookmarked -->
-    <TextView
-        android:id="@+id/title_bookmarked"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="bookmarked"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/weather_text"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp" />
-
     <!-- Weather reading -->
     <TextView
         android:id="@+id/weather_text"
@@ -64,7 +52,19 @@
         app:layout_constraintLeft_toRightOf="@id/text_todays_weather"
         app:layout_constraintTop_toTopOf="@id/text_todays_weather" />
 
-    <!-- Bookmarked Grid -->
+    <!-- Title: Bookmarked -->
+    <TextView
+        android:id="@+id/title_bookmarked"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="bookmarked"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/weather_text"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Bookmarked Grid (RecyclerView for fits) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_bookmarked"
         android:layout_width="0dp"
@@ -72,7 +72,7 @@
         app:layout_constraintTop_toBottomOf="@id/title_bookmarked"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"/>
 
     <!-- Dark Mode Toggle -->
     <LinearLayout
@@ -84,13 +84,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp">
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="dark mode" />
-
         <Switch
             android:id="@+id/switch_dark_mode"
             android:layout_width="wrap_content"
@@ -107,13 +105,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp">
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="username" />
-
         <TextView
             android:id="@+id/text_username"
             android:layout_width="wrap_content"
@@ -131,20 +127,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp">
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="email" />
-
         <TextView
             android:id="@+id/text_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="example@gmail.com" />
     </LinearLayout>
-
 
     <!-- Bottom Buttons Section -->
     <LinearLayout
@@ -156,7 +149,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="8dp">
-
         <!-- Delete Account Button -->
         <Button
             android:id="@+id/button_delete_account"
