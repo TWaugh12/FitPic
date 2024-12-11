@@ -33,6 +33,7 @@ import com.cs407.fitpic.adapter.ClothingAdapter
 import com.cs407.fitpic.adapter.ClothingItem
 import com.cs407.fitpic.adapter.Fit
 import com.cs407.fitpic.adapter.FitAdapter
+import com.cs407.fitpic.adapter.SectionAdapter
 import org.json.JSONObject
 import com.cs407.fitpic.ui.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -42,6 +43,10 @@ import com.google.firebase.firestore.QuerySnapshot
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
+    private val sectionAdapter by lazy {
+        SectionAdapter(requireContext()) {
+        }
+    }
     private val firestore: FirebaseFirestore by lazy { FirebaseFirestore.getInstance() }
     var weather_url1 = ""
     private var auth = FirebaseAuth.getInstance()
@@ -69,6 +74,9 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val emailTextView: TextView = view.findViewById(R.id.text_email)
         val deleteAccountButton: Button = view.findViewById(R.id.button_delete_account)
         val logOutButton: Button = view.findViewById(R.id.button_log_out)
+
+        val isDarkMode2 = isDarkTheme()
+        sectionAdapter.setTextColorForTheme(isDarkMode2)
 
         fetchUsername { fetchedUsername ->
             usernameTextView.text = fetchedUsername

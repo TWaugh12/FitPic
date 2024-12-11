@@ -31,6 +31,7 @@ class ClosetFragment : Fragment() {
     }
 
     private lateinit var recyclerView: RecyclerView
+    private lateinit var createOutfitButton: View
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,6 +46,9 @@ class ClosetFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recycler_closet)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = sectionAdapter
+
+        createOutfitButton = view.findViewById(R.id.button_create_outfit)
+        createOutfitButton.setOnClickListener { createOutfit() }
 
         val isDarkMode = isDarkTheme()
         sectionAdapter.setTextColorForTheme(isDarkMode)
@@ -86,6 +90,83 @@ class ClosetFragment : Fragment() {
     private fun organizeClothingByCategory(clothingItems: List<ClothingItem>): List<Section> {
         return clothingItems.groupBy { it.type ?: "Unknown" }
             .map { (category, items) -> Section(category, items) }
+    }
+
+    private fun createOutfit() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Log.e("ClosetFragment", "No user logged in")
+            Toast.makeText(requireContext(), "User not logged in.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val clothingItemsRef = firestore.collection("users")
+            .document(currentUser.uid)
+            .collection("clothingItems")
+
+        clothingItemsRef.get()
+            .addOnSuccessListener { querySnapshot ->
+                val clothingItems = querySnapshot.documents.mapNotNull { document ->
+                    document.toObject(ClothingItem::class.java)?.copy(documentId = document.id)
+                }
+
+                if (clothingItems.isEmpty()) {
+                    Toast.makeText(requireContext(), "No clothing items available to create an outfit.", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                // Group clothing items by type
+                val groupedItems = clothingItems.groupBy { it.type }
+
+                // Ensure at least one shirt and one pant
+                val shirt = groupedItems["Shirt"]?.randomOrNull()
+                val pant = groupedItems["Pants"]?.randomOrNull()
+
+                if (shirt == null || pant == null) {
+                    Toast.makeText(requireContext(), "Cannot create an outfit without a shirt and pants.", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                // Pick random items from other categories
+                val additionalItems = groupedItems
+                    .filterKeys { it != "Shirt" && it != "Pants" }
+                    .flatMap { it.value.shuffled().take((0..2).random()) } // Pick up to 2 random items from other categories
+
+                // Combine shirt, pant, and additional items into the outfit
+                val randomOutfit = listOf(shirt, pant) + additionalItems
+
+                saveOutfitToFirestore(randomOutfit)
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ClosetFragment", "Error fetching clothing items", exception)
+                Toast.makeText(requireContext(), "Failed to create outfit. Please try again.", Toast.LENGTH_LONG).show()
+            }
+    }
+
+
+    private fun saveOutfitToFirestore(randomOutfit: List<ClothingItem>) {
+        val currentUser = auth.currentUser ?: return
+
+        val fitsRef = firestore.collection("users")
+            .document(currentUser.uid)
+            .collection("fits")
+
+        // Generate a unique name for the outfit
+        val uniqueName = "fit ${Math.random().toInt()}"
+
+        val newFit = hashMapOf(
+            "title" to uniqueName,
+            "clothing_item_ids" to randomOutfit.map { it.documentId }
+        )
+
+        fitsRef.add(newFit)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "fit '$uniqueName' created successfully!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Log.e("ClosetFragment", "Error saving random outfit", exception)
+                Toast.makeText(requireContext(), "Failed to save outfit. Please try again.", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun showDeleteDialog(clothingItem: ClothingItem) {
