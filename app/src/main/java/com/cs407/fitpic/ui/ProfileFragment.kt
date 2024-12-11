@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.Switch
@@ -28,6 +29,7 @@ import com.cs407.fitpic.R
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.android.volley.Request
+import com.cs407.fitpic.adapter.ClothingAdapter
 import com.cs407.fitpic.adapter.ClothingItem
 import com.cs407.fitpic.adapter.Fit
 import com.cs407.fitpic.adapter.FitAdapter
@@ -180,7 +182,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
     private fun handleFitsSuccess(querySnapshot: QuerySnapshot) {
         val fits = querySnapshot.documents.mapNotNull { document ->
-            document.toObject(Fit::class.java)?.copy(title = document.getString("title") ?: "")
+            document.toObject(Fit::class.java)?.copy(title = document.getString("title") ?: "", clothingItemIds = document.get("clothing_item_ids") as? List<String> ?: emptyList())
         }
 
         fitsAdapter = FitAdapter(fits, requireContext()) { fit ->
@@ -216,11 +218,20 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
 
 
     private fun showClothingItemsDialog(clothingItems: List<ClothingItem>) {
-        val itemsString = clothingItems.joinToString("\n") { it.type } // Display clothing types (or another property)
+        // Inflate the custom layout for the dialog
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_clothing_items, null)
 
+        // Set up the RecyclerView in the dialog layout
+        val recyclerView: RecyclerView = dialogView.findViewById(R.id.clothingItemsRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = ClothingAdapter(clothingItems) { clothingItem ->
+            // Handle long-clicks if necessary, or pass an empty lambda if not needed
+        }
+
+        // Create and show the dialog with the custom view
         AlertDialog.Builder(requireContext())
             .setTitle("Clothing Items in Fit")
-            .setMessage(itemsString)
+            .setView(dialogView)
             .setPositiveButton("OK", null)
             .show()
     }
