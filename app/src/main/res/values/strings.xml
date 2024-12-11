@@ -6,11 +6,11 @@
     <string name="shirt_label">Shirt</string>
 
     <string-array name="clothing_types_array">
-        <item>Shirt</item>
+        <item>Shirts</item>
         <item>Pants</item>
-        <item>Hoodie</item>
-        <item>Sweater</item>
+        <item>Hoodies</item>
+        <item>Sweaters</item>
         <item>Shoes</item>
-        <item>Accessory</item>
+        <item>Accessories</item>
     </string-array>
 </resources>

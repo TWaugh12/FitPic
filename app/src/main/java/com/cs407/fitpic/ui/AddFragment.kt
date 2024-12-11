@@ -52,7 +52,7 @@ class AddFragment : Fragment() {
 
     companion object {
         private const val TAG = "AddFragment"
-        private const val oai_key = "i'll send in chat idk how to hide it properly"
+        private const val oai_key = "add key"
     }
 
     private val pickImage = registerForActivityResult(
@@ -135,7 +135,11 @@ class AddFragment : Fragment() {
                 messages = listOf(
                     ChatMessage(
                         role = ChatRole.System,
-                        content = "You are a clothing analyzer. You must respond ONLY with a valid JSON object containing three fields - type (type of clothing), color (main color), and weather (appropriate weather conditions). No other text or explanation."
+                        content = "You are a clothing analyzer. " +
+                                "You must respond ONLY with a valid JSON object containing three fields " +
+                                "- type (type of clothing: Shirts, Pants, Hoodies, Sweaters, Shoes, Accessories)," +
+                                " color (main color, choose from rainbow colors), and weather (appropriate temperature (in Fahrenheit) range to wear item)." +
+                                " No other text or explanation."
                     ),
                     ChatMessage(
                         role = ChatRole.User,
