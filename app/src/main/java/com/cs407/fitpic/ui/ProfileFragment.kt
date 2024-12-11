@@ -15,6 +15,7 @@ import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -33,6 +34,7 @@ import com.cs407.fitpic.adapter.FitAdapter
 import org.json.JSONObject
 import com.cs407.fitpic.ui.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
 
@@ -106,8 +108,8 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         // Initialize RecyclerView with the FitsAdapter
         fitsRecyclerView = view.findViewById(R.id.recycler_bookmarked)
         fitsRecyclerView.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        fitsAdapter = FitAdapter(fitsList, requireContext())
-        fitsRecyclerView.adapter = fitsAdapter
+        //fitsAdapter = FitAdapter(fitsList, requireContext())
+        //fitsRecyclerView.adapter = fitsAdapter
 
         fetchUserFits()
         // Fetch and display fits
@@ -154,9 +156,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
             Log.e("ProfileFragment", "No user logged in")
-            if (isAdded) {
-                Toast.makeText(requireContext(), "User not logged in.", Toast.LENGTH_SHORT).show()
-            }
+            Toast.makeText(requireContext(), "User not logged in.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -168,8 +168,6 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
             .addOnSuccessListener { querySnapshot ->
                 if (isAdded) {
                     handleFitsSuccess(querySnapshot)
-                } else {
-                    Log.e("ProfileFragment", "Fragment not attached when data was fetched.")
                 }
             }
             .addOnFailureListener { exception ->
@@ -181,17 +179,50 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
     }
 
     private fun handleFitsSuccess(querySnapshot: QuerySnapshot) {
-        if (!isAdded || view == null) {
-            Log.e("ProfileFragment", "Fragment is no longer attached; skipping UI update.")
-            return
-        }
-
         val fits = querySnapshot.documents.mapNotNull { document ->
             document.toObject(Fit::class.java)?.copy(title = document.getString("title") ?: "")
         }
 
-        fitsAdapter = FitAdapter(fits, requireContext())
+        fitsAdapter = FitAdapter(fits, requireContext()) { fit ->
+            displayClothingItems(fit)
+        }
         fitsRecyclerView.adapter = fitsAdapter
+    }
+
+    private fun displayClothingItems(fit: Fit) {
+        val clothingItemIds = fit.clothingItemIds
+
+        if (clothingItemIds.isEmpty()) {
+            Toast.makeText(requireContext(), "No clothing items in this fit.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val clothingItemsRef = firestore.collection("users")
+            .document(auth.currentUser!!.uid)
+            .collection("clothingItems")
+
+        clothingItemsRef.whereIn(FieldPath.documentId(), clothingItemIds)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                val clothingItems = querySnapshot.documents.mapNotNull { document ->
+                    document.toObject(ClothingItem::class.java)?.copy(documentId = document.id)
+                }
+                showClothingItemsDialog(clothingItems)
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(requireContext(), "Failed to load clothing items: ${exception.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+
+    private fun showClothingItemsDialog(clothingItems: List<ClothingItem>) {
+        val itemsString = clothingItems.joinToString("\n") { it.type } // Display clothing types (or another property)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Clothing Items in Fit")
+            .setMessage(itemsString)
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun fetchClothingItems(onResult: (Map<String, ClothingItem>) -> Unit) {

@@ -11,7 +11,8 @@ import com.cs407.fitpic.R
 // Adapter to display fit titles in a RecyclerView
 class FitAdapter(
     private val fits: List<Fit>,
-    private val context: Context
+    private val context: Context,
+    private val onFitClick: (Fit) -> Unit // Callback for clicks
 ) : RecyclerView.Adapter<FitAdapter.FitViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FitViewHolder {
@@ -22,6 +23,11 @@ class FitAdapter(
     override fun onBindViewHolder(holder: FitViewHolder, position: Int) {
         val fit = fits[position]
         holder.titleTextView.text = fit.title
+
+        // Set click listener
+        holder.titleTextView.setOnClickListener {
+            onFitClick(fit) // Trigger callback
+        }
     }
 
     override fun getItemCount(): Int {
@@ -32,3 +38,4 @@ class FitAdapter(
         val titleTextView: TextView = view.findViewById(R.id.fit_title)
     }
 }
+
